@@ -19,7 +19,7 @@ def function_handler(event, context):
 
     init_onnx()
 
-    init_face_app()
+    # init_face_app()
 
 
 def init_onnx():
