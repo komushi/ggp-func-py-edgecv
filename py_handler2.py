@@ -23,6 +23,9 @@ def function_handler(event, context):
 
 
 def init_onnx():
+    logger.info('LD_LIBRARY_PATH: ' + os.environ['LD_LIBRARY_PATH'])
+    logger.info('PATH: ' + os.environ['PATH'])
+
     try:
         print(f"onnxruntime device: {ort.get_device()}")
 
