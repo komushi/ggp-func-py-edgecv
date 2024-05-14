@@ -5,7 +5,7 @@ import datetime
 import sys
 import os
 
-import onnxruntime as ort
+import onnxruntime
 
 from insightface.app import FaceAnalysis
 
@@ -27,15 +27,14 @@ def init_onnx():
     logger.info('PATH: ' + os.environ['PATH'])
 
     try:
-        print(f"onnxruntime device: {ort.get_device()}")
+        print(f"onnxruntime device: {onnxruntime.get_device()}")
 
-        print(f'ort avail providers: {ort.get_available_providers()}')
+        print(f'ort avail providers: {onnxruntime.get_available_providers()}')
 
-        ort_session = ort.InferenceSession('/etc/insightface/models/buffalo_sc/det_500m.onnx', providers=["CUDAExecutionProvider"])
+        ort_session = onnxruntime.InferenceSession('/etc/insightface/models/buffalo_sc/det_500m.onnx', providers=["CUDAExecutionProvider"])
 
         print(ort_session.get_providers())
     except Exception as e:
-        logger.info('Caught init_onnx Othert Exception')
         logger.info(e)
 
 def init_face_app():
