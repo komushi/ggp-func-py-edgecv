@@ -48,3 +48,6 @@ def init_face_app():
     except Exception as e:
         logger.info('Caught init_face_app Othert Exception')
         logger.info(e)
+
+if __name__ == "__main__":
+    function_handler(event={"method": "aaa", "action": "bbb"}, context=None)
