@@ -17,9 +17,9 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 def function_handler(event, context):
     logger.info('function_handler event: ' + repr(event))
 
-    # init_onnx()
+    init_onnx()
 
-    init_face_app()
+    # init_face_app()
 
 
 def init_onnx():
