@@ -19,3 +19,5 @@ var/
 
 # Serverless directories
 __pycache__/
+
+images/*.*
