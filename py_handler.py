@@ -7,12 +7,25 @@ import os
 from threading import Thread
 from multiprocessing.connection import Listener, Client
 
+import greengrasssdk
+
+import socket
+
 # Setup logging to stdout
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 # from libs import face_detector as fdm
 detector = None
+
+client = greengrasssdk.client("iot-data")
+
+def get_local_ip():
+    # Connect to an external host, in this case, Google's DNS server
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+    return local_ip
 
 def motion(params):
     try:
@@ -111,6 +124,17 @@ def function_handler(event, context):
                     sys.exit()
 
     else:
+        data = {
+            "equipmentId": os.environ['AWS_IOT_THING_NAME'],
+            "equipmentName": os.environ['AWS_IOT_THING_NAME'],
+            "localIp": get_local_ip()
+        }
+        
+
+        client.publish(
+            topic="gocheckin/scanner_detected",
+            payload=json.dumps(data)
+        )
         sys.exit(0)
 
 if __name__ == "__main__":
