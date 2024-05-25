@@ -130,6 +130,7 @@ def function_handler(event, context):
             "localIp": get_local_ip()
         }
         
+        print(json.dumps(data))
 
         client.publish(
             topic="gocheckin/scanner_detected",
