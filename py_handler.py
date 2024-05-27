@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
-face_app = init_face_app()
 client = greengrasssdk.client("iot-data")
 
 def get_local_ip():
@@ -95,10 +94,4 @@ def function_handler(event, context):
         )
         sys.exit(0)
 
-if __name__ == "__main__":
-    if len(sys.argv) == 6:
-        function_handler(event={"method": sys.argv[1], "action": sys.argv[2], "rtsp_src": sys.argv[3], "codec": sys.argv[4], "framerate": sys.argv[5]}, context=None)
-    elif len(sys.argv) == 7:
-        function_handler(event={"method": sys.argv[1], "action": sys.argv[2], "rtsp_src": sys.argv[3], "codec": sys.argv[4], "framerate": sys.argv[5], "face_file": sys.argv[6]}, context=None)
-    elif len(sys.argv) == 3:
-        function_handler(event={"method": sys.argv[1], "action": sys.argv[2]}, context=None)
+face_app = init_face_app()
