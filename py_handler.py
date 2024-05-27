@@ -60,8 +60,8 @@ def function_handler(event, context):
     context_vars = vars(context)
 
     print(context_vars)
-    print(vars(context_vars['client_context']))
-    print(vars(context_vars['client_context'].custom))
+    pprint(context_vars['client_context'])
+    pprint(context_vars['client_context'].custom)
 
     subject_value = context_vars['client_context'].custom['subject']
 
