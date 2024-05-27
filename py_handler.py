@@ -17,6 +17,8 @@ from insightface.app import FaceAnalysis
 import io
 import base64
 
+import pprint
+
 
 # Setup logging to stdout
 logger = logging.getLogger(__name__)
@@ -55,13 +57,9 @@ def read_base64_face(base64_string):
 
 def function_handler(event, context):    
 
-    try:
-        print(str(context))
-    except Exception as e:
-        print(f"Error converting object to string: {e}")
-        print(f"Object representation: {repr(context)}")
-        
-    logger.info("Context object:", json.dumps(context, indent=4))
+    pprint.pprint(context.__dict__)
+
+    print(vars(context))
 
     if context.client_context.custom['subject'] == "gocheckin/req_face_embeddings":
         
