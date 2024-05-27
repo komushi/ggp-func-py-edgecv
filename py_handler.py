@@ -17,7 +17,7 @@ from insightface.app import FaceAnalysis
 import io
 import base64
 
-import pprint
+import requests
 
 
 # Setup logging to stdout
