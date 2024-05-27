@@ -69,7 +69,6 @@ def function_handler(event, context):
         image_bgr = read_picture_from_url(event['faceImgUrl'])
 
         reference_faces = face_app.get(image_bgr)
-        return 
 
         data = {
             "reservationCode": event['reservationCode'],
@@ -77,7 +76,7 @@ def function_handler(event, context):
             "faceEmbedding": reference_faces[0].embedding
         }
         
-        print(json.dumps(data))
+        logger.info('function_handler payload with faceEmbedding: ' + json.dumps(data))
 
         client.publish(
             topic="gocheckin/res_face_embeddings",
