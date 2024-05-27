@@ -53,21 +53,15 @@ def read_base64_face(base64_string):
     return image_bgr
 
 
-def function_handler(event, context):
-    # Your code
-    context_dict = {
-        "function_name": context.function_name,
-        "function_version": context.function_version,
-        "invoked_function_arn": context.invoked_function_arn,
-        "memory_limit_in_mb": context.memory_limit_in_mb,
-        "aws_request_id": context.aws_request_id,
-        "log_group_name": context.log_group_name,
-        "log_stream_name": context.log_stream_name,
-        "identity": context.identity.cognito_identity_id if context.identity else None,
-        "client_context": context.client_context.client if context.client_context else None
-    }
-    
-    logger.info("Context object:", json.dumps(context_dict, indent=4))
+def function_handler(event, context):    
+
+    try:
+        print(str(context))
+    except Exception as e:
+        print(f"Error converting object to string: {e}")
+        print(f"Object representation: {repr(context)}")
+        
+    logger.info("Context object:", json.dumps(context, indent=4))
 
     if context.client_context.custom['subject'] == "gocheckin/req_face_embeddings":
         
