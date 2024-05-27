@@ -73,7 +73,7 @@ def function_handler(event, context):
         data = {
             "reservationCode": event['reservationCode'],
             "memberNo": event['memberNo'],
-            "faceEmbedding": reference_faces[0].embedding
+            "faceEmbedding": reference_faces[0].embedding.tolist()
         }
         
         logger.info('function_handler payload with faceEmbedding: ' + json.dumps(data))
