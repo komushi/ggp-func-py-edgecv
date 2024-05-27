@@ -58,16 +58,9 @@ def read_base64_face(base64_string):
 def function_handler(event, context):
 
     context_vars = vars(context)
-
-    print(context_vars)
-
-    logger.info(repr(context_vars['client_context']))
-    logger.info(repr(context_vars['client_context'].custom))
-    logger.info(repr(context_vars['client_context'].custom['subject']))
-
     subject_value = context_vars['client_context'].custom['subject']
 
-    print(subject_value)
+    logger.info('function_handler topic: ' + subject_value)
 
     if subject_value == "gocheckin/req_face_embeddings":
         
