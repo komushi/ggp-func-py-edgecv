@@ -54,8 +54,22 @@ def read_base64_face(base64_string):
 
 
 def function_handler(event, context):
-    logger.info('function_handler context: ' + repr(context))
-    if context.clientContext.Custom.subject == "gocheckin/req_face_embeddings":
+    # Your code
+    context_dict = {
+        "function_name": context.function_name,
+        "function_version": context.function_version,
+        "invoked_function_arn": context.invoked_function_arn,
+        "memory_limit_in_mb": context.memory_limit_in_mb,
+        "aws_request_id": context.aws_request_id,
+        "log_group_name": context.log_group_name,
+        "log_stream_name": context.log_stream_name,
+        "identity": context.identity.cognito_identity_id if context.identity else None,
+        "client_context": context.client_context.client if context.client_context else None
+    }
+    
+    logger.info("Context object:", json.dumps(context_dict, indent=4))
+
+    if context.client_context.custom['subject'] == "gocheckin/req_face_embeddings":
         
         logger.info('function_handler req_face_embeddings event: ' + repr(event))
 
@@ -78,7 +92,7 @@ def function_handler(event, context):
         )
         sys.exit(0)
 
-    elif context.clientContext.Custom.subject == f"gocheckin/{AWS_IOT_THING_NAME}/init_scanner":
+    elif context.client_context.custom['subject'] == f"gocheckin/{AWS_IOT_THING_NAME}/init_scanner":
         logger.info('function_handler init_scanner')
 
         data = {
