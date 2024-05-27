@@ -39,21 +39,21 @@ def init_face_app():
     app.prepare(ctx_id=0, det_size=(640, 640))#ctx_id=0 CPU
     return app
 
-def read_base64_face(base64_string):
-    # Step 1: Decode the Base64 string
-    image_data = base64.b64decode(base64_string)
+def read_picture_from_url(url):
+    # Download the image
+    response = requests.get(url)
+    response.raise_for_status()  # Ensure the request was successful
     
-    # Step 2: Open the image using PIL
-    image = PIL.Image.open(io.BytesIO(image_data)).convert("RGB")
+    # Open the image from the downloaded content
+    image = PIL.Image.open(io.BytesIO(response.content)).convert("RGB")
     
-    # Step 3: Convert the image to a NumPy array
+    # Convert the image to a numpy array
     image_array = np.array(image)
     
-    # Step 4: Reorder the channels from RGB to BGR
-    image_bgr = image_array[:, :, [2, 1, 0]]  # RGB to BGR
+    # Rearrange the channels from RGB to BGR
+    image_bgr = image_array[:, :, [2, 1, 0]]
     
     return image_bgr
-
 
 def function_handler(event, context):
 
@@ -66,7 +66,7 @@ def function_handler(event, context):
         
         logger.info('function_handler req_face_embeddings event: ' + repr(event))
 
-        image_bgr = read_base64_face(event.faceImgBase64)
+        image_bgr = read_picture_from_url(event.faceImgUrl)
 
         reference_faces = face_app.get(image_bgr)
         return 
