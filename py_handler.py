@@ -66,14 +66,14 @@ def function_handler(event, context):
         
         logger.info('function_handler req_face_embeddings event: ' + repr(event))
 
-        image_bgr = read_picture_from_url(event.faceImgUrl)
+        image_bgr = read_picture_from_url(event['faceImgUrl'])
 
         reference_faces = face_app.get(image_bgr)
         return 
 
         data = {
-            "reservationCode": event.reservationCode,
-            "memberNo": event.memberNo,
+            "reservationCode": event['reservationCode'],
+            "memberNo": event['memberNo'],
             "faceEmbedding": reference_faces[0].embedding
         }
         
