@@ -55,13 +55,11 @@ def read_base64_face(base64_string):
     return image_bgr
 
 
-def function_handler(event, context):    
-
-    pprint.pprint(context.__dict__)
+def function_handler(event, context):
 
     print(vars(context))
 
-    if context.client_context.custom['subject'] == "gocheckin/req_face_embeddings":
+    if context['client_context.custom']['custom']['subject'] == "gocheckin/req_face_embeddings":
         
         logger.info('function_handler req_face_embeddings event: ' + repr(event))
 
@@ -84,7 +82,7 @@ def function_handler(event, context):
         )
         sys.exit(0)
 
-    elif context.client_context.custom['subject'] == f"gocheckin/{AWS_IOT_THING_NAME}/init_scanner":
+    elif context.client_context.custom['subject'] == f"gocheckin/{os.environ['AWS_IOT_THING_NAME']}/init_scanner":
         logger.info('function_handler init_scanner')
 
         data = {
