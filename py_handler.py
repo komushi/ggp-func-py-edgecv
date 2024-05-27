@@ -59,9 +59,13 @@ def function_handler(event, context):
 
     context_vars = vars(context)
 
-    print(context_vars)
+    print('context_vars:' + context_vars)
+
+    print(vars(context_vars['client_context']))
 
     subject_value = context_vars['client_context'].custom['subject']
+
+    print('subject_value:' + subject_value)
 
     if subject_value == "gocheckin/req_face_embeddings":
         
