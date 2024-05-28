@@ -89,7 +89,7 @@ def start_http_server():
                 )
 
                 # Example response
-                bbox = faces[0].bbox.astype(np.int).flatten()
+                bbox = reference_faces[0].bbox.astype(np.int).flatten()
                 cropped_face = image_bgr[:, :, [2, 1, 0]].crop((bbox[0], bbox[1], bbox[2], bbox[3]))
                 cropped_face_array = np.array(cropped_face_img)
 
