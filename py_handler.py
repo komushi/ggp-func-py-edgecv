@@ -4,30 +4,18 @@ import time
 import datetime
 import sys
 import os
-from threading import Thread
-from multiprocessing.connection import Listener, Client
-
-import greengrasssdk
-import socket
-
 import numpy as np
-import PIL.Image
-from insightface.app import FaceAnalysis
 
-import io
-import base64
 
-import requests
 
 
 # Setup logging to stdout
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-
-client = greengrasssdk.client("iot-data")
-
 def get_local_ip():
+    import socket
+
     # Connect to an external host, in this case, Google's DNS server
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         s.connect(("8.8.8.8", 80))
@@ -35,11 +23,17 @@ def get_local_ip():
     return local_ip
 
 def init_face_app():
+    from insightface.app import FaceAnalysis
+
     app = FaceAnalysis(name='buffalo_sc', allowed_modules=['detection', 'recognition'], providers=['CUDAExecutionProvider', 'CPUExecutionProvider'], root='/etc/insightface')
     app.prepare(ctx_id=0, det_size=(640, 640))#ctx_id=0 CPU
     return app
 
 def read_picture_from_url(url):
+    import PIL.Image
+    import io
+    import requests
+
     # Download the image
     response = requests.get(url)
     response.raise_for_status()  # Ensure the request was successful
@@ -63,10 +57,14 @@ def function_handler(event, context):
     logger.info('function_handler topic: ' + subject_value)
 
     if subject_value == "gocheckin/req_face_embeddings":
+
+        import greengrasssdk
         
         logger.info('function_handler req_face_embeddings event: ' + repr(event))
 
         image_bgr = read_picture_from_url(event['faceImgUrl'])
+
+        face_app = init_face_app()
 
         reference_faces = face_app.get(image_bgr)
 
@@ -78,14 +76,17 @@ def function_handler(event, context):
         
         logger.info('function_handler payload with faceEmbedding: ' + json.dumps(data))
 
+        client = greengrasssdk.client("iot-data")
         client.publish(
             topic="gocheckin/res_face_embeddings",
             payload=json.dumps(data)
         )
         sys.exit(0)
 
-    elif subject_value == f"gocheckin/{os.environ['AWS_IOT_THING_NAME']}/init_scanner":
+    elif subject_value == f"gocheckin/{os.environ['AWS_IOT_THING_NAME']}/init_scanner":        
         logger.info('function_handler init_scanner')
+
+        import greengrasssdk
 
         data = {
             "equipmentId": os.environ['AWS_IOT_THING_NAME'],
@@ -94,10 +95,10 @@ def function_handler(event, context):
         }
         
         # print(json.dumps(data))
+        client = greengrasssdk.client("iot-data")
         client.publish(
             topic="gocheckin/scanner_detected",
             payload=json.dumps(data)
         )
         sys.exit(0)
 
-face_app = init_face_app()
