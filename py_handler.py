@@ -6,8 +6,8 @@ import sys
 import os
 import numpy as np
 
-
-
+import greengrasssdk
+iotClient = greengrasssdk.client("iot-data")
 
 # Setup logging to stdout
 logger = logging.getLogger(__name__)
@@ -29,12 +29,6 @@ def init_face_app():
     app.prepare(ctx_id=0, det_size=(640, 640))#ctx_id=0 CPU
     return app
 
-face_app = None
-
-if face_app is None:
-    logger.info('NEEDNEEDNEED init_face_app')
-    face_app = init_face_app()
-
 def read_picture_from_url(url):
     import PIL.Image
     import io
@@ -55,6 +49,73 @@ def read_picture_from_url(url):
     
     return image_bgr
 
+def start_http_server():
+    import http.server
+    import socketserver
+    import json
+
+    PORT = 8888
+
+    class MyHandler(http.server.SimpleHTTPRequestHandler):
+        def do_POST(self):
+            if self.path == '/recognise':
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+
+                # Process the POST data
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                event = json.loads(post_data)
+
+
+                image_bgr = read_picture_from_url(event['faceImgUrl'])
+
+                reference_faces = face_app.get(image_bgr)
+
+                data = {
+                    "reservationCode": event['reservationCode'],
+                    "memberNo": event['memberNo'],
+                    "faceEmbedding": reference_faces[0].embedding.tolist()
+                }
+        
+                iotClient.publish(
+                    topic="gocheckin/res_face_embeddings",
+                    payload=json.dumps(data)
+                )
+
+                # Example response
+                response = {'message': 'Recognition completed'}
+
+                # Send the response
+                self.wfile.write(json.dumps(response).encode())
+
+            elif self.path == '/detect':
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+
+                # Process the POST data
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+
+                # Example response
+                response = {'message': 'Detection completed', 'data': json.loads(post_data)}
+
+                # Send the response
+                self.wfile.write(json.dumps(response).encode())
+
+            else:
+                self.send_error(404, 'Path Not Found: %s' % self.path)
+
+        def address_string(self):  # Limit access to local network requests
+            host, port = self.client_address[:2]
+            return host
+
+    with socketserver.TCPServer(("", PORT), MyHandler) as httpd:
+        print("Serving at port", PORT)
+        httpd.serve_forever()
+
 def function_handler(event, context):
 
     context_vars = vars(context)
@@ -70,7 +131,7 @@ def function_handler(event, context):
 
         image_bgr = read_picture_from_url(event['faceImgUrl'])
 
-        # face_app = init_face_app()
+        face_app = init_face_app()
 
         reference_faces = face_app.get(image_bgr)
 
@@ -110,3 +171,6 @@ def function_handler(event, context):
         )
         sys.exit(0)
 
+
+face_app = init_face_app()
+start_http_server()
