@@ -6,6 +6,10 @@ import sys
 import os
 import numpy as np
 
+import PIL.Image
+import io
+
+
 import greengrasssdk
 iotClient = greengrasssdk.client("iot-data")
 
@@ -30,8 +34,6 @@ def init_face_app():
     return app
 
 def read_picture_from_url(url):
-    import PIL.Image
-    import io
     import requests
 
     # Download the image
@@ -89,12 +91,18 @@ def start_http_server():
                 )
 
                 # Example response
-                response = {'message': 'Recognition completed'}
+                bbox = faces[0].bbox.astype(np.int).flatten()
+                cropped_face = image_bgr[:, :, [2, 1, 0]].crop((bbox[0], bbox[1], bbox[2], bbox[3]))
+                cropped_face_array = np.array(cropped_face_img)
+
+                face_base64 = base64.b64encode(cropped_face_array).decode('utf-8')
+
+                response = {'message': 'Recognition completed', 'faceImgBase64': face_base64}
 
                 # Send the response
                 self.wfile.write(json.dumps(response).encode())
 
-                logger.info('/recognise POST finished')
+                logger.info('/recognise POST finished:' + json.dumps(response))
 
             elif self.path == '/detect':
                 self.send_response(200)
