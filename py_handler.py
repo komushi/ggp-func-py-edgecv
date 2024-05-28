@@ -49,7 +49,7 @@ def read_picture_from_url(url):
     # Rearrange the channels from RGB to BGR
     image_bgr = image_array[:, :, [2, 1, 0]]
     
-    return image_bgr
+    return image_bgr, image
 
 def start_http_server():
     import http.server
@@ -73,7 +73,7 @@ def start_http_server():
                 logger.info('/recognise POST: ' + json.dumps(event))
 
 
-                image_bgr = read_picture_from_url(event['faceImgUrl'])
+                image_bgr, org_image = read_picture_from_url(event['faceImgUrl'])
 
                 reference_faces = face_app.get(image_bgr)
 
@@ -90,7 +90,7 @@ def start_http_server():
 
                 # Example response
                 bbox = reference_faces[0].bbox.astype(np.int).flatten()
-                cropped_face = image_bgr[:, :, [2, 1, 0]].crop((bbox[0], bbox[1], bbox[2], bbox[3]))
+                cropped_face = org_image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
                 cropped_face_array = np.array(cropped_face_img)
 
                 face_base64 = base64.b64encode(cropped_face_array).decode('utf-8')
