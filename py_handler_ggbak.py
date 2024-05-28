@@ -29,8 +29,6 @@ def init_face_app():
     app.prepare(ctx_id=0, det_size=(640, 640))#ctx_id=0 CPU
     return app
 
-face_app = init_face_app()
-
 def read_picture_from_url(url):
     import PIL.Image
     import io
@@ -66,7 +64,7 @@ def function_handler(event, context):
 
         image_bgr = read_picture_from_url(event['faceImgUrl'])
 
-        # face_app = init_face_app()
+        face_app = init_face_app()
 
         reference_faces = face_app.get(image_bgr)
 
