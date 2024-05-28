@@ -25,7 +25,7 @@ def get_local_ip():
 def init_face_app():
     from insightface.app import FaceAnalysis
 
-    app = FaceAnalysis(name='buffalo_sc', allowed_modules=['detection', 'recognition'], providers=['CUDAExecutionProvider', 'CPUExecutionProvider'], root='/etc/insightface')
+    app = FaceAnalysis(name='buffalo_l', allowed_modules=['detection', 'recognition'], providers=['CUDAExecutionProvider', 'CPUExecutionProvider'], root='/etc/insightface')
     app.prepare(ctx_id=0, det_size=(640, 640))#ctx_id=0 CPU
     return app
 
@@ -52,11 +52,11 @@ def read_picture_from_url(url):
 def function_handler(event, context):
 
     context_vars = vars(context)
-    subject_value = context_vars['client_context'].custom['subject']
+    topic = context_vars['client_context'].custom['subject']
 
-    logger.info('function_handler topic: ' + subject_value)
+    logger.info('function_handler topic: ' + topic)
 
-    if subject_value == "gocheckin/req_face_embeddings":
+    if topic == "gocheckin/req_face_embeddings":
 
         import greengrasssdk
         
@@ -83,10 +83,12 @@ def function_handler(event, context):
         )
         sys.exit(0)
 
-    elif subject_value == f"gocheckin/{os.environ['AWS_IOT_THING_NAME']}/init_scanner":        
+    elif topic == f"gocheckin/{os.environ['AWS_IOT_THING_NAME']}/init_scanner":        
         logger.info('function_handler init_scanner')
 
         import greengrasssdk
+
+        client = greengrasssdk.client("iot-data")
 
         data = {
             "equipmentId": os.environ['AWS_IOT_THING_NAME'],
@@ -95,7 +97,7 @@ def function_handler(event, context):
         }
         
         # print(json.dumps(data))
-        client = greengrasssdk.client("iot-data")
+        
         client.publish(
             topic="gocheckin/scanner_detected",
             payload=json.dumps(data)
