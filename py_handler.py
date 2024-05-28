@@ -40,7 +40,7 @@ def read_picture_from_url(url):
     response = requests.get(url)
     response.raise_for_status()  # Ensure the request was successful
     
-    # Open the image from the downloaded content
+    # Open the image from the downloaded content    
     image = PIL.Image.open(io.BytesIO(response.content)).convert("RGB")
     
     # Convert the image to a numpy array
@@ -91,9 +91,13 @@ def start_http_server():
                 # Example response
                 bbox = reference_faces[0].bbox.astype(np.int).flatten()
                 cropped_face = org_image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
-                # cropped_face_array = np.array(cropped_face)
 
-                face_base64 = base64.b64encode(cropped_face).decode('utf-8')
+                # Convert the image to bytes
+                buffered = io.BytesIO()
+                cropped_face.save(buffered, format="JPEG")
+                cropped_face_bytes = buffered.getvalue()
+
+                face_base64 = base64.b64encode(cropped_face_bytes).decode('utf-8')
 
                 response = {'message': 'Recognition completed', 'faceImgBase64': face_base64}
 
