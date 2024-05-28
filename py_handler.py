@@ -91,7 +91,7 @@ def start_http_server():
                 # Example response
                 bbox = reference_faces[0].bbox.astype(np.int).flatten()
                 cropped_face = org_image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
-                cropped_face_array = np.array(cropped_face_img)
+                cropped_face_array = np.array(cropped_face)
 
                 face_base64 = base64.b64encode(cropped_face_array).decode('utf-8')
 
