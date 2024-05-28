@@ -70,7 +70,7 @@ def start_http_server():
                 post_data = self.rfile.read(content_length)
                 event = json.loads(post_data)
 
-                logger.info('/recognise POST: ' + json.dumps(evemt))
+                logger.info('/recognise POST: ' + json.dumps(event))
 
 
                 image_bgr = read_picture_from_url(event['faceImgUrl'])
