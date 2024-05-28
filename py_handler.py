@@ -25,7 +25,7 @@ def get_local_ip():
 def init_face_app():
     from insightface.app import FaceAnalysis
 
-    app = FaceAnalysis(name='buffalo_l', allowed_modules=['detection', 'recognition'], providers=['CUDAExecutionProvider', 'CPUExecutionProvider'], root='/etc/insightface')
+    app = FaceAnalysis(name='buffalo_sc', allowed_modules=['detection', 'recognition'], providers=['CUDAExecutionProvider', 'CPUExecutionProvider'], root='/etc/insightface')
     app.prepare(ctx_id=0, det_size=(640, 640))#ctx_id=0 CPU
     return app
 
