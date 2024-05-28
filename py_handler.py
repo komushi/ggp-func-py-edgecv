@@ -29,7 +29,11 @@ def init_face_app():
     app.prepare(ctx_id=0, det_size=(640, 640))#ctx_id=0 CPU
     return app
 
-face_app = init_face_app()
+face_app = None
+
+if face_app is None:
+    logger.info('NEEDNEEDNEED init_face_app')
+    face_app = init_face_app()
 
 def read_picture_from_url(url):
     import PIL.Image
