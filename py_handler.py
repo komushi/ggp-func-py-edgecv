@@ -66,6 +66,10 @@ def start_http_server():
                 # Process the POST data
                 content_length = int(self.headers['Content-Length'])
                 post_data = self.rfile.read(content_length)
+
+
+                logger.info('/recognise POST: ' + post_data)
+
                 event = json.loads(post_data)
 
 
@@ -89,6 +93,8 @@ def start_http_server():
 
                 # Send the response
                 self.wfile.write(json.dumps(response).encode())
+
+                logger.info('/recognise POST finished')
 
             elif self.path == '/detect':
                 self.send_response(200)
