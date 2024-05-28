@@ -8,7 +8,7 @@ import numpy as np
 
 import PIL.Image
 import io
-
+import base64
 
 import greengrasssdk
 iotClient = greengrasssdk.client("iot-data")
