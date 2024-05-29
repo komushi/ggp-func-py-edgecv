@@ -101,9 +101,9 @@ def start_http_server():
                 cropped_face.save(buffered, format="JPEG")
                 cropped_face_bytes = buffered.getvalue()
 
-                face_base64 = base64.b64encode(cropped_face_bytes).decode('utf-8')
+                event['faceImgBase64'] = base64.b64encode(cropped_face_bytes).decode('utf-8')
 
-                response = {'message': 'Recognition completed', 'faceImgBase64': face_base64}
+                response = {'message': 'Recognition completed', 'data': event}
 
                 # Send the response
                 self.wfile.write(json.dumps(response).encode())
