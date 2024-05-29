@@ -60,9 +60,9 @@ def start_http_server():
 
     class MyHandler(http.server.SimpleHTTPRequestHandler):
         def do_POST(self):
-            if self.client_address[0] != '127.0.0.1':
-                self.send_error(403, "Forbidden: Only localhost is allowed.")
-                return
+            # if self.client_address[0] != '127.0.0.1':
+            #     self.send_error(403, "Forbidden: Only localhost is allowed.")
+            #     return
 
             if self.path == '/recognise':
                 self.send_response(200)
