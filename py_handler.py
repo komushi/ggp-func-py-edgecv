@@ -10,8 +10,8 @@ import PIL.Image
 import io
 import base64
 
-import greengrasssdk
-iotClient = greengrasssdk.client("iot-data")
+# import greengrasssdk
+# iotClient = greengrasssdk.client("iot-data")
 
 # Setup logging to stdout
 logger = logging.getLogger(__name__)
@@ -60,9 +60,9 @@ def start_http_server():
 
     class MyHandler(http.server.SimpleHTTPRequestHandler):
         def do_POST(self):
-            # if self.client_address[0] != '127.0.0.1':
-            #     self.send_error(403, "Forbidden: Only localhost is allowed.")
-            #     return
+            if self.client_address[0] != '127.0.0.1':
+                self.send_error(403, "Forbidden: Only localhost is allowed.")
+                return
 
             if self.path == '/recognise':
                 self.send_response(200)
@@ -103,14 +103,11 @@ def start_http_server():
                 cropped_face_bytes = buffered.getvalue()
 
                 event['faceImgBase64'] = base64.b64encode(cropped_face_bytes).decode('utf-8')
-                
-
-                response = {'message': 'Recognition completed', 'data': event}
 
                 # Send the response
-                self.wfile.write(json.dumps(response).encode())
+                self.wfile.write(json.dumps(event).encode())
 
-                logger.info('/recognise POST finished:' + json.dumps(response))
+                logger.info('/recognise POST finished')
 
             elif self.path == '/detect':
                 self.send_response(200)
