@@ -132,7 +132,7 @@ def start_http_server():
 
                 print(str("/detect motion:" + "{}").format(event['motion']))
 
-                if event['motion'] is True then:
+                if event['motion'] is True:
                     active_members = get_active_members()
 
                 # Example response
