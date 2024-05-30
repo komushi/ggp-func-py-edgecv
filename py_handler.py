@@ -60,9 +60,9 @@ def start_http_server():
 
     class MyHandler(http.server.SimpleHTTPRequestHandler):
         def do_POST(self):
-            if self.client_address[0] != '127.0.0.1':
-                self.send_error(403, "Forbidden: Only localhost is allowed")
-                return
+            # if self.client_address[0] != '127.0.0.1':
+            #     self.send_error(403, "Forbidden: Only localhost is allowed")
+            #     return
 
             if self.path == '/recognise':
                 self.send_response(200)
@@ -118,8 +118,11 @@ def start_http_server():
                 content_length = int(self.headers['Content-Length'])
                 post_data = self.rfile.read(content_length)
 
+                active_members = get_active_members()
+
                 # Example response
-                response = {'message': json.loads(post_data)}
+                # response = {'message': json.loads(post_data)}
+                response = {'message': active_members}
 
                 # Send the response
                 self.wfile.write(json.dumps(response).encode())
@@ -134,6 +137,89 @@ def start_http_server():
     with socketserver.TCPServer(("", PORT), MyHandler) as httpd:
         print("Serving at port", PORT)
         httpd.serve_forever()
+
+def get_active_reservations():
+    # import boto3
+    # from boto3.dynamodb.conditions import Key, Attr
+    # from datetime import datetime
+
+    # Initialize the DynamoDB resource
+    dynamodb = boto3.resource(
+        'dynamodb'，
+        endpoint_url=os.environ['DDB_ENDPOINT'],
+        region_name='us-west-1',
+        aws_access_key_id='fakeMyKeyId',
+        aws_secret_access_key='fakeSecretAccessKey'
+    )
+
+    # Specify the table name
+    tbl_reservation = os.environ['TBL_RESERVATION']
+
+    # Get the table
+    table = dynamodb.Table(tbl_reservation)
+
+    # Get the current date in 'YYYY-MM-DD' format
+    current_date = datetime.now().strftime('%Y-%m-%d')
+
+    # Create the filter expression
+    filter_expression = Attr('checkInDate').lte(current_date) & Attr('checkOutDate').gte(current_date)
+
+    # Scan the table with the filter expression
+    response = table.scan(
+        FilterExpression=filter_expression,
+        ProjectionExpression='reservationCode'
+    )
+
+    # Get the items from the response
+    items = response.get('Items', [])
+
+    for item in items:
+        print(item)
+
+    return items
+
+def get_active_members():
+    import boto3
+    from boto3.dynamodb.conditions import Key, Attr
+    from datetime import datetime
+
+    # Initialize the DynamoDB resource
+    dynamodb = boto3.resource(
+        'dynamodb'，
+        endpoint_url=os.environ['DDB_ENDPOINT'],
+        region_name='us-west-1',
+        aws_access_key_id='fakeMyKeyId',
+        aws_secret_access_key='fakeSecretAccessKey'
+    )
+    # Specify the table name
+    tbl_member = os.environ['TBL_MEMBER']
+
+    # List of reservation codes to query
+    reservation_codes = get_active_reservations()
+
+    # Define the list of attributes to retrieve
+    attributes_to_get = ['reservationCode', 'memberNo', 'faceImgBase64']
+
+    # Construct the keys for batch get
+    keys_to_get = [{'reservationCode': {'S': code}} for code in reservation_codes]
+
+    # Prepare the request for batch get item
+    response = dynamodb.batch_get_item(
+        RequestItems={
+            tbl_member: {
+                'Keys': keys_to_get,
+                'ProjectionExpression': ', '.join(attributes_to_get)
+            }
+        }
+    )
+
+    # Extract the items from the response
+    items = response['Responses'][tbl_member]
+
+    for item in items:
+        print(item)
+
+    return items
 
 def function_handler(event, context):
 
