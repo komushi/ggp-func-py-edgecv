@@ -167,7 +167,7 @@ def get_active_reservations():
 
     # Scan the table with the filter expression
     response = table.scan(
-        FilterExpression=filter_expression,
+        # FilterExpression=filter_expression,
         ProjectionExpression='reservationCode'
     )
 
