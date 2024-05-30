@@ -125,8 +125,8 @@ def start_http_server():
                 active_members = get_active_members()
 
                 # Example response
-                # response = {'message': json.loads(post_data)}
-                response = {'message': active_members}
+                response = {'message': json.loads(post_data)}
+                # response = {'message': active_members}
 
                 # Send the response
                 self.wfile.write(json.dumps(response).encode())
@@ -195,7 +195,7 @@ def get_active_members():
     active_reservations = get_active_reservations()
 
     # Define the list of attributes to retrieve
-    attributes_to_get = ['reservationCode', 'memberNo', 'faceImgBase64']
+    attributes_to_get = ['reservationCode', 'memberNo', 'faceEmbedding']
 
     # Initialize an empty list to store the results
     results = []
