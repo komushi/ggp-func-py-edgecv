@@ -10,6 +10,12 @@ import PIL.Image
 import io
 import base64
 
+import http.server
+import socketserver
+
+import boto3
+from datetime import datetime
+
 # import greengrasssdk
 # iotClient = greengrasssdk.client("iot-data")
 
@@ -52,9 +58,6 @@ def read_picture_from_url(url):
     return image_bgr, image
 
 def start_http_server():
-    import http.server
-    import socketserver
-    import json
 
     PORT = 8888
 
@@ -139,9 +142,6 @@ def start_http_server():
         httpd.serve_forever()
 
 def get_active_reservations():
-    # import boto3
-    # from boto3.dynamodb.conditions import Key, Attr
-    # from datetime import datetime
 
     # Initialize the DynamoDB resource
     dynamodb = boto3.resource(
@@ -179,10 +179,6 @@ def get_active_reservations():
     return items
 
 def get_active_members():
-    import boto3
-    from boto3.dynamodb.conditions import Key, Attr
-    from datetime import datetime
-
     # Initialize the DynamoDB resource
     dynamodb = boto3.resource(
         'dynamodb',
