@@ -192,19 +192,16 @@ def get_active_members():
     tbl_member = os.environ['TBL_MEMBER']
 
     # List of reservation codes to query
-    reservation_codes = get_active_reservations()
+    active_reservations = get_active_reservations()
 
     # Define the list of attributes to retrieve
     attributes_to_get = ['reservationCode', 'memberNo', 'faceImgBase64']
-
-    # Construct the keys for batch get
-    keys_to_get = [{'reservationCode': {'S': code}} for code in reservation_codes]
 
     # Initialize an empty list to store the results
     results = []
 
     # Iterate over each reservation code and query DynamoDB
-    for code in reservation_codes:
+    for active_reservation in active_reservations:
         table = dynamodb.Table(tbl_member)
         
         # Query DynamoDB using the partition key (reservationCode)
@@ -212,7 +209,7 @@ def get_active_members():
             KeyConditionExpression='reservationCode = :code',
             ProjectionExpression=', '.join(attributes_to_get),
             ExpressionAttributeValues={
-                ':code': code
+                ':code': active_reservation['reservationCode']
             }
         )
         
