@@ -85,7 +85,11 @@ def start_http_server():
 
                 reference_faces = face_app.get(image_bgr)
 
+                print('reference_faces[0].embedding:' + type(reference_faces[0].embedding))
+
                 event['faceEmbedding'] = reference_faces[0].embedding.tolist()
+
+                print('event[faceEmbedding]:' + type(event['faceEmbedding']))
 
                 # data = {
                 #     "reservationCode": event['reservationCode'],
@@ -218,6 +222,9 @@ def get_active_members():
 
     for item in results:
         print(item)
+        print('item[faceEmbedding]:' + type(item['faceEmbedding']))
+        item['faceEmbedding'] = np.array(item['faceEmbedding'])
+        
 
     return results
 
