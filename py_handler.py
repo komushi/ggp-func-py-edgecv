@@ -223,12 +223,8 @@ def get_active_members():
         results.extend(response['Items'])
 
     for item in results:
-        print(item)
-        print('item[faceEmbedding]:')
-        print(type(item['faceEmbedding']))
         item['faceEmbedding'] = np.array(item['faceEmbedding'])
-        print('item[faceEmbedding]2:')
-        print(type(item['faceEmbedding']))
+        print(item)
         
 
     return results
