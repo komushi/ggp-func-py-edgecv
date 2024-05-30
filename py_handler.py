@@ -200,23 +200,29 @@ def get_active_members():
     # Construct the keys for batch get
     keys_to_get = [{'reservationCode': {'S': code}} for code in reservation_codes]
 
-    # Prepare the request for batch get item
-    response = dynamodb.batch_get_item(
-        RequestItems={
-            tbl_member: {
-                'Keys': keys_to_get,
-                'ProjectionExpression': ', '.join(attributes_to_get)
+    # Initialize an empty list to store the results
+    results = []
+
+    # Iterate over each reservation code and query DynamoDB
+    for code in reservation_codes:
+        table = dynamodb.Table(tbl_member)
+        
+        # Query DynamoDB using the partition key (reservationCode)
+        response = table.query(
+            KeyConditionExpression='reservationCode = :code',
+            ProjectionExpression=', '.join(attributes_to_get),
+            ExpressionAttributeValues={
+                ':code': code
             }
-        }
-    )
+        )
+        
+        # Add the query results to the results list
+        results.extend(response['Items'])
 
-    # Extract the items from the response
-    items = response['Responses'][tbl_member]
-
-    for item in items:
+    for item in results:
         print(item)
 
-    return items
+    return results
 
 def function_handler(event, context):
 
