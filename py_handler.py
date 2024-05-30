@@ -145,7 +145,7 @@ def get_active_reservations():
 
     # Initialize the DynamoDB resource
     dynamodb = boto3.resource(
-        'dynamodb'，
+        'dynamodb',
         endpoint_url=os.environ['DDB_ENDPOINT'],
         region_name='us-west-1',
         aws_access_key_id='fakeMyKeyId',
