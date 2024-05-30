@@ -120,6 +120,7 @@ def start_http_server():
                 logger.info('/recognise POST finished')
 
             elif self.path == '/detect':
+
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
@@ -127,12 +128,15 @@ def start_http_server():
                 # Process the POST data
                 content_length = int(self.headers['Content-Length'])
                 post_data = self.rfile.read(content_length)
+                event = json.loads(post_data)
 
-                active_members = get_active_members()
+                print(str("/detect motion:" + "{}").format(event['motion']))
+
+                if event['motion'] is True then:
+                    active_members = get_active_members()
 
                 # Example response
-                response = {'message': json.loads(post_data)}
-                # response = {'message': active_members}
+                response = {'message': event}
 
                 # Send the response
                 self.wfile.write(json.dumps(response).encode())
