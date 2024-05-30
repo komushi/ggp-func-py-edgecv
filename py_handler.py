@@ -163,7 +163,7 @@ def get_active_reservations():
     current_date = datetime.now().strftime('%Y-%m-%d')
 
     # Create the filter expression
-    filter_expression = Attr('checkInDate').lte(current_date) & Attr('checkOutDate').gte(current_date)
+    # filter_expression = Attr('checkInDate').lte(current_date) & Attr('checkOutDate').gte(current_date)
 
     # Scan the table with the filter expression
     response = table.scan(
