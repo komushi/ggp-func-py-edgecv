@@ -61,7 +61,7 @@ def start_http_server():
     class MyHandler(http.server.SimpleHTTPRequestHandler):
         def do_POST(self):
             if self.client_address[0] != '127.0.0.1':
-                self.send_error(403, "Forbidden: Only localhost is allowed.")
+                self.send_error(403, "Forbidden: Only localhost is allowed")
                 return
 
             if self.path == '/recognise':
@@ -119,7 +119,7 @@ def start_http_server():
                 post_data = self.rfile.read(content_length)
 
                 # Example response
-                response = {'message': 'Detection completed', 'data': json.loads(post_data)}
+                response = {'message': json.loads(post_data)}
 
                 # Send the response
                 self.wfile.write(json.dumps(response).encode())
