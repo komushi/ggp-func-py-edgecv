@@ -17,6 +17,8 @@ import boto3
 from boto3.dynamodb.conditions import Key, Attr
 from datetime import datetime
 
+from threading import Thread
+
 # import greengrasssdk
 # iotClient = greengrasssdk.client("iot-data")
 
@@ -289,7 +291,7 @@ def function_handler(event, context):
         sys.exit(0)
 
 
-# face_app = init_face_app()
-t = threading.Thread(target=start_http_server)
+face_app = init_face_app()
+t = threading.Thread(target=start_http_server, daemon=True)
 t.start()
 # start_http_server()
