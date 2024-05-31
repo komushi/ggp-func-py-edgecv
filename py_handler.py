@@ -289,5 +289,7 @@ def function_handler(event, context):
         sys.exit(0)
 
 
-face_app = init_face_app()
+# face_app = init_face_app()
+t = threading.Thread(target=start_http_server)
+t.start()
 # start_http_server()
