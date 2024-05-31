@@ -38,9 +38,13 @@ def get_local_ip():
 def init_face_app():
     from insightface.app import FaceAnalysis
 
-    app = FaceAnalysis(name='buffalo_sc', allowed_modules=['detection', 'recognition'], providers=['CUDAExecutionProvider', 'CPUExecutionProvider'], root='/etc/insightface')
-    app.prepare(ctx_id=0, det_size=(640, 640))#ctx_id=0 CPU
-    return app
+    global face_app
+
+    if face_app is None:
+        face_app = FaceAnalysis(name='buffalo_sc', allowed_modules=['detection', 'recognition'], providers=['CUDAExecutionProvider', 'CPUExecutionProvider'], root='/etc/insightface')
+        face_app.prepare(ctx_id=0, det_size=(640, 640))#ctx_id=0 CPU
+    
+    return
 
 def read_picture_from_url(url):
     import requests
@@ -85,6 +89,7 @@ def start_http_server():
 
                 image_bgr, org_image = read_picture_from_url(event['faceImgUrl'])
 
+                init_face_app()
                 reference_faces = face_app.get(image_bgr)
 
                 print('reference_faces[0].embedding:')
@@ -231,7 +236,6 @@ def get_active_members():
     for item in results:
         item['faceEmbedding'] = np.array(item['faceEmbedding'])
         print(item)
-        
 
     return results
 
@@ -242,34 +246,7 @@ def function_handler(event, context):
 
     logger.info('function_handler topic: ' + topic)
 
-    if topic == "gocheckin/req_face_embeddings":
-
-        import greengrasssdk
-        
-        logger.info('function_handler req_face_embeddings event: ' + repr(event))
-
-        image_bgr = read_picture_from_url(event['faceImgUrl'])
-
-        face_app = init_face_app()
-
-        reference_faces = face_app.get(image_bgr)
-
-        data = {
-            "reservationCode": event['reservationCode'],
-            "memberNo": event['memberNo'],
-            "faceEmbedding": reference_faces[0].embedding.tolist()
-        }
-        
-        logger.info('function_handler payload with faceEmbedding: ' + json.dumps(data))
-
-        client = greengrasssdk.client("iot-data")
-        client.publish(
-            topic="gocheckin/res_face_embeddings",
-            payload=json.dumps(data)
-        )
-        sys.exit(0)
-
-    elif topic == f"gocheckin/{os.environ['AWS_IOT_THING_NAME']}/init_scanner":        
+    if topic == f"gocheckin/{os.environ['AWS_IOT_THING_NAME']}/init_scanner":        
         logger.info('function_handler init_scanner')
 
         import greengrasssdk
@@ -291,7 +268,23 @@ def function_handler(event, context):
         sys.exit(0)
 
 
-face_app = init_face_app()
+def fetch_members():
+    current_date = datetime.now()
+
+    global active_members
+    global last_fetch_time
+
+    if last_fetch_time is None or last_fetch_time < current_date:
+        last_fetch_time = current_date
+        active_members = get_active_members()
+
+
+active_members = []
+last_fetch_time = None
+
+face_app = None
+
 t = Thread(target=start_http_server, daemon=True)
 t.start()
-# start_http_server()
+
+
