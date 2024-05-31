@@ -292,6 +292,6 @@ def function_handler(event, context):
 
 
 face_app = init_face_app()
-t = threading.Thread(target=start_http_server, daemon=True)
+t = Thread(target=start_http_server, daemon=True)
 t.start()
 # start_http_server()
