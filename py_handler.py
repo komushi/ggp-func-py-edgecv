@@ -148,7 +148,9 @@ def start_http_server():
                 if event['motion'] is True:
                     fetch_members()
 
-
+                # start_recognition
+                t3 = threading.Thread(target=start_recognition, args=(event['motion'],), daemon=True)
+                t3.start()
 
                 # Example response
                 response = {'message': event}
@@ -385,10 +387,6 @@ t1.start()
 # scheduler
 t2 = threading.Thread(target=start_scheduler, daemon=True)
 t2.start()
-
-# start_recognition
-t3 = threading.Thread(target=start_recognition, daemon=True)
-t3.start()
 
 
 
