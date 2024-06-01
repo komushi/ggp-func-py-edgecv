@@ -18,6 +18,8 @@ import threading
 import sched
 import time
 
+from multiprocessing.connection import Listener, Client
+
 import requests
 
 import PIL.Image
@@ -145,6 +147,8 @@ def start_http_server():
 
                 if event['motion'] is True:
                     fetch_members()
+
+
 
                 # Example response
                 response = {'message': event}
@@ -318,6 +322,49 @@ def start_scheduler():
     # Start the scheduler
     scheduler.run()
 
+def recognition(params):
+    try:
+        logger.info("recognition start params:" + repr(params))
+
+        import face_recognition as fdm
+
+        global detector
+
+        detector = fdm.FaceRecognition(params)
+
+        detector.start_detector()
+        
+    except Exception as e:
+        logger.error("FaceRecognition failure: " + repr(e))
+
+
+def start_recognition(motion):
+    address = ('localhost', 6000)
+    
+    params['rtsp_src'] = 'rtsp://admin:Cypher2015@192.168.11.206:554/stream1'
+
+    params['codec'] = 'h264'
+
+    params['framerate'] = '10'
+
+    params['face_file'] = 'boy'
+
+    if motion is True:
+        with Listener(address, authkey=b'secret password') as listener:                
+            print('Listener Started')
+            t = Thread(target=recognition, args=(params,))
+            t.start()
+            print('Prepare to accept')
+            with listener.accept() as conn:
+                print('connection accepted from', listener.last_accepted)
+                conn.send_bytes(b'hello')
+                detector.stop_event.set()
+
+    else:
+        with Client(address, authkey=b'secret password') as conn:
+            print(conn.recv_bytes())
+
+
 # Initialize the active_members and the last_fetch_time
 active_members = []
 last_fetch_time = None
@@ -328,13 +375,22 @@ face_app = None
 # Initialize the scheduler
 scheduler = sched.scheduler(time.time, time.sleep)
 
+# Initialize the detector
+detector = None
+
 # http server
 t1 = threading.Thread(target=start_http_server, daemon=True)
 t1.start()
 
-# http server
+# scheduler
 t2 = threading.Thread(target=start_scheduler, daemon=True)
 t2.start()
+
+# start_recognition
+t3 = threading.Thread(target=start_recognition, daemon=True)
+t3.start()
+
+
 
 
 
