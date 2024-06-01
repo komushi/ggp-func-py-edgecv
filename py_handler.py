@@ -14,7 +14,9 @@ import socket
 
 from datetime import datetime
 
-from threading import Thread
+import threading
+import sched
+import time
 
 import requests
 
@@ -287,13 +289,47 @@ def fetch_members():
         last_fetch_time = current_date
         active_members = get_active_members()
 
+def claim_scanner():
+    client = greengrasssdk.client("iot-data")
 
+    data = {
+        "equipmentId": os.environ['AWS_IOT_THING_NAME'],
+        "equipmentName": os.environ['AWS_IOT_THING_NAME'],
+        "localIp": get_local_ip()
+    }
+    
+    client.publish(
+        topic="gocheckin/scanner_detected",
+        payload=json.dumps(data)
+    )
+
+    # Reschedule the function
+    scheduler.enter(60, 1, claim_scanner)
+
+# Function to start the scheduler
+def start_scheduler():
+    # Schedule the first call to my_function
+    scheduler.enter(60, 1, claim_scanner)
+    # Start the scheduler
+    scheduler.run()
+
+# Initialize the active_members and the last_fetch_time
 active_members = []
 last_fetch_time = None
 
+# Initialize the face_app
 face_app = None
 
-t = Thread(target=start_http_server, daemon=True)
-t.start()
+# Initialize the scheduler
+scheduler = sched.scheduler(time.time, time.sleep)
+
+# http server
+t1 = threading.Thread(target=start_http_server, daemon=True)
+t1.start()
+
+# http server
+t2 = threading.Thread(target=start_scheduler, daemon=True)
+t2.start()
+
 
 
