@@ -140,7 +140,7 @@ def start_http_server():
                 print(str("/detect motion:" + "{}").format(event['motion']))
 
                 if event['motion'] is True:
-                    active_members = get_active_members()
+                    fetch_members()
 
                 # Example response
                 response = {'message': event}
@@ -160,7 +160,8 @@ def start_http_server():
         httpd.serve_forever()
 
 def get_active_reservations():
-
+    logger.info('get_active_reservations in')
+    
     # Initialize the DynamoDB resource
     dynamodb = boto3.resource(
         'dynamodb',
@@ -197,6 +198,8 @@ def get_active_reservations():
     return items
 
 def get_active_members():
+    logger.info('get_active_members in')
+
     # Initialize the DynamoDB resource
     dynamodb = boto3.resource(
         'dynamodb',
@@ -269,10 +272,15 @@ def function_handler(event, context):
 
 
 def fetch_members():
+    logger.info('fetch_members in')
+
     current_date = datetime.now()
 
     global active_members
     global last_fetch_time
+
+    logger.info('fetch_members last_fetch_time' + last_fetch_time)
+    logger.info('fetch_members current_date' + current_date)
 
     if last_fetch_time is None or last_fetch_time < current_date:
         last_fetch_time = current_date
