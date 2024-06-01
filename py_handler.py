@@ -277,7 +277,7 @@ def function_handler(event, context):
 def fetch_members():
     logger.info('fetch_members in')
 
-    current_date = datetime.now()
+    current_date = datetime.now().date()
 
     global active_members
     global last_fetch_time
@@ -285,9 +285,14 @@ def fetch_members():
     logger.info('fetch_members last_fetch_time: %s', str(last_fetch_time))
     logger.info('fetch_members current_date: %s', str(current_date))
 
-    if last_fetch_time is None or last_fetch_time < current_date:
-        last_fetch_time = current_date
+    if active_members is None:
         active_members = get_active_members()
+        last_fetch_time = current_date
+    else:
+        if last_fetch_time is None or last_fetch_time < current_date:
+            active_members = get_active_members()
+            last_fetch_time = current_date
+        
 
 def claim_scanner():
     client = greengrasssdk.client("iot-data")
@@ -304,12 +309,12 @@ def claim_scanner():
     )
 
     # Reschedule the function
-    scheduler.enter(60, 1, claim_scanner)
+    scheduler.enter(1800, 1, claim_scanner)
 
 # Function to start the scheduler
 def start_scheduler():
     # Schedule the first call to my_function
-    scheduler.enter(60, 1, claim_scanner)
+    scheduler.enter(1800, 1, claim_scanner)
     # Start the scheduler
     scheduler.run()
 
