@@ -69,7 +69,7 @@ def read_picture_from_url(url):
 
 def start_http_server():
 
-    PORT = 8888
+    http_port = 8888
 
     class MyHandler(http.server.SimpleHTTPRequestHandler):
         def do_POST(self):
@@ -87,8 +87,7 @@ def start_http_server():
                 post_data = self.rfile.read(content_length)
                 event = json.loads(post_data)
 
-                logger.info('/recognise POST: ' + json.dumps(event))
-
+                logger.info('/recognise POST %s', json.dumps(event))
 
                 image_bgr, org_image = read_picture_from_url(event['faceImgUrl'])
 
@@ -140,7 +139,7 @@ def start_http_server():
                 post_data = self.rfile.read(content_length)
                 event = json.loads(post_data)
 
-                print(str("/detect motion:" + "{}").format(event['motion']))
+                logger.info('/detect POST motion: %s', format(event['motion']))
 
                 if event['motion'] is True:
                     fetch_members()
@@ -158,8 +157,8 @@ def start_http_server():
             host, _ = self.client_address[:2]
             return host
 
-    with socketserver.TCPServer(("", PORT), MyHandler) as httpd:
-        print("Serving at port", PORT)
+    with socketserver.TCPServer(("", http_port), MyHandler) as httpd:
+        logger.info('Serving at port: %s', http_port)
         httpd.serve_forever()
 
 def get_active_reservations():
@@ -251,7 +250,7 @@ def function_handler(event, context):
     context_vars = vars(context)
     topic = context_vars['client_context'].custom['subject']
 
-    logger.info('function_handler topic: ' + topic)
+    logger.info('function_handler topic: %s', str(topic))
 
     if topic == f"gocheckin/{os.environ['AWS_IOT_THING_NAME']}/init_scanner":        
         logger.info('function_handler init_scanner')
@@ -281,8 +280,8 @@ def fetch_members():
     global active_members
     global last_fetch_time
 
-    logger.info('fetch_members last_fetch_time' + last_fetch_time)
-    logger.info('fetch_members current_date' + current_date)
+    logger.info('fetch_members last_fetch_time: %s', str(last_fetch_time))
+    logger.info('fetch_members current_date: %s', str(current_date))
 
     if last_fetch_time is None or last_fetch_time < current_date:
         last_fetch_time = current_date
