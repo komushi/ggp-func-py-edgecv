@@ -1,25 +1,30 @@
 import json
 import logging
-import time
 import datetime
 import sys
 import os
-import numpy as np
 
-import PIL.Image
 import io
 import base64
 
 import http.server
 import socketserver
 
-import boto3
-from boto3.dynamodb.conditions import Key, Attr
+import socket
+
 from datetime import datetime
 
 from threading import Thread
 
-# import greengrasssdk
+import requests
+
+import PIL.Image
+import numpy as np
+
+import boto3
+from boto3.dynamodb.conditions import  Attr
+
+import greengrasssdk
 # iotClient = greengrasssdk.client("iot-data")
 
 # Setup logging to stdout
@@ -27,7 +32,6 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 def get_local_ip():
-    import socket
 
     # Connect to an external host, in this case, Google's DNS server
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
@@ -47,7 +51,6 @@ def init_face_app():
     return
 
 def read_picture_from_url(url):
-    import requests
 
     # Download the image
     response = requests.get(url)
@@ -152,7 +155,7 @@ def start_http_server():
                 self.send_error(404, 'Path Not Found: %s' % self.path)
 
         def address_string(self):  # Limit access to local network requests
-            host, port = self.client_address[:2]
+            host, _ = self.client_address[:2]
             return host
 
     with socketserver.TCPServer(("", PORT), MyHandler) as httpd:
@@ -161,7 +164,7 @@ def start_http_server():
 
 def get_active_reservations():
     logger.info('get_active_reservations in')
-    
+
     # Initialize the DynamoDB resource
     dynamodb = boto3.resource(
         'dynamodb',
@@ -181,7 +184,8 @@ def get_active_reservations():
     current_date = datetime.now().strftime('%Y-%m-%d')
 
     # Create the filter expression
-    filter_expression = Attr('checkInDate').lte(current_date) & Attr('checkOutDate').gte(current_date)
+    filter_expression = Attr('checkInDate').lte(current_date) \
+        & Attr('checkOutDate').gte(current_date)
 
     # Scan the table with the filter expression
     response = table.scan(
@@ -251,8 +255,6 @@ def function_handler(event, context):
 
     if topic == f"gocheckin/{os.environ['AWS_IOT_THING_NAME']}/init_scanner":        
         logger.info('function_handler init_scanner')
-
-        import greengrasssdk
 
         client = greengrasssdk.client("iot-data")
 
